@@ -93,8 +93,56 @@ void readDataFromFile(stack <Auto> &autoStack, stack <Bike> &bikeStack){
     } 
 }
 
+void rentAuto(stack <Auto> &autoStack){
+    if(autoStack.empty()){
+        cout << "Стек пуст";
+    }
+
+    stack <Auto> bufferAutoStack;
+    while(!autoStack.empty()){
+        int isChanged = 1+rand()%(10-1);
+        if(isChanged <= 5){
+            cout << autoStack.top();
+            //здесь производить заказ и проверку на то, арендован ли транспорт
+            break;
+        }
+        bufferAutoStack.push(autoStack.top());
+        autoStack.pop();
+    }
+
+    while(!bufferAutoStack.empty()){
+        autoStack.push(bufferAutoStack.top());
+        bufferAutoStack.pop();
+    }
+}
+
+void rentBike(stack <Bike> &bikeStack){
+    if(bikeStack.empty()){
+        cout << "Стек пуст";
+    }
+
+    stack <Bike> bufferBikeStack;
+    while(!bikeStack.empty()){
+        int isChanged = 1+rand()%(10-1);
+        if(isChanged <= 5){
+            cout << bikeStack.top();
+            //здесь производить заказ и проверку на то, арендован ли транспорт
+            break;
+        }
+        bufferBikeStack.push(bikeStack.top());
+        bikeStack.pop();
+    }
+
+    while(!bufferBikeStack.empty()){
+        bikeStack.push(bufferBikeStack.top());
+        bufferBikeStack.pop();
+    }
+}
+
+
 
 int main(){
+    srand(time(NULL));
     // OrderAuto oa(1,1, 3, 10);
     // cout << oa;
 
@@ -108,19 +156,25 @@ int main(){
 
     int orderId = 0;
 
-    srand(time(NULL));
-    for(int curDay = 1; curDay <= 30; curDay++){
-        cout << "Текущий день:   "<< curDay << "\n";
+    // for(int curDay = 1; curDay <= 3; curDay++){
+    //     cout << "Текущий день:   "<< curDay << "\n";
 
-        int countCustomers;
-        countCustomers=1+rand()%(15-1);
-        // cout<< countCustomers << "\n";
-        for(int curCustomer = 1; curCustomer <= countCustomers; curCustomer++){
-            cout << curCustomer << "\n";
-        }
-    }
-    // cout << autoStack.top();
-    // cout << bikeStack.top();
+    //     int countCustomers;
+    //     countCustomers=1+rand()%(5-1);
+    //     // cout<< countCustomers << "\n";
+    //     for(int curCustomer = 1; curCustomer <= countCustomers; curCustomer++){
+    //         cout << "Customer:  " << curCustomer << "\n";
+    //         int boolKindTransport = 0+rand()%(3-1);
+            
+    //         string curTransport;
+    //         if(boolKindTransport == 1){
+    //             curTransport = "auto";
+    //         }else{
+    //             curTransport = "bike";
+    //         }
+
+    //     }
+    // }
 
 
     return 0;
