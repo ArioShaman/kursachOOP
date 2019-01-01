@@ -2,14 +2,21 @@
 #include <iostream>
 
 #include "transport.h"
+#include "order.h"
+
+
 #include "bike.h"
 #include "auto.h"
 
+#include "orderAuto.h"
+#include "orderBike.h"
 
 #include <fstream>
 
 using namespace std;
 
+
+//Чтение данных с файла
 void readDataFromFile(){
     ifstream file("./database.txt");
 
@@ -83,7 +90,18 @@ void readDataFromFile(){
     } 
 }
 
+
 int main(){
-    readDataFromFile();
+    // readDataFromFile();
+
+    // Order o(1, 1, 10);
+    // o.print();
+
+    // OrderAuto oa(1,1, 3, 10);
+    // oa.print();
+
+    // OrderBike ob(1,2,6);
+    // ob.print();
+    
     return 0;
 }
