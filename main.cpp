@@ -12,12 +12,17 @@
 #include "orderBike.h"
 
 #include <fstream>
+#include <stack> 
+
+
+#include <ctime>
+#include <cstdlib>
 
 using namespace std;
 
 
 //Чтение данных с файла
-void readDataFromFile(){
+void readDataFromFile(stack <Auto> &autoStack, stack <Bike> &bikeStack){
     ifstream file("./database.txt");
 
     if(!file) {
@@ -79,29 +84,44 @@ void readDataFromFile(){
     
         if (kind == "auto"){
             Auto a(id, year, mark, color, number, mileage, rentPrice);   
-            a.print();
+            autoStack.push(a);
         }
         if(kind == "bike"){
             Bike b(id, year, mark, color, number, mileage, rentPrice);
-            b.print();
+            bikeStack.push(b);
         }
-        cout << "\n";
-
     } 
 }
 
 
 int main(){
-    // readDataFromFile();
-
-    // Order o(1, 1, 10);
-    // o.print();
-
     // OrderAuto oa(1,1, 3, 10);
-    // oa.print();
+    // cout << oa;
 
     // OrderBike ob(1,2,6);
-    // ob.print();
+    // cout << ob;
+
+    stack <Auto> autoStack;
+    stack <Bike> bikeStack;
+    readDataFromFile(autoStack, bikeStack);
     
+
+    int orderId = 0;
+
+    srand(time(NULL));
+    for(int curDay = 1; curDay <= 30; curDay++){
+        cout << "Текущий день:   "<< curDay << "\n";
+
+        int countCustomers;
+        countCustomers=1+rand()%(15-1);
+        // cout<< countCustomers << "\n";
+        for(int curCustomer = 1; curCustomer <= countCustomers; curCustomer++){
+            cout << curCustomer << "\n";
+        }
+    }
+    // cout << autoStack.top();
+    // cout << bikeStack.top();
+
+
     return 0;
 }

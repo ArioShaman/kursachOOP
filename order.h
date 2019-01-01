@@ -9,7 +9,7 @@ class Order{
         int id_transport;
         int durationRent;
         int durationFine = 0;
-        bool isCose = false;
+        bool isClose = false;
 
     Order(int id, int id_transport, int durationRent){
         this->id = id;
@@ -23,7 +23,7 @@ class Order{
         cout << this->id_transport << "\n";
         cout << this->durationRent << "\n";
         cout << this->durationFine << "\n";
-        cout << this->isCose<< "\n";
+        cout << this->isClose<< "\n";
         cout << "\n";
     }
 };

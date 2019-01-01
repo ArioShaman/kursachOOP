@@ -14,6 +14,20 @@ class Bike:public virtual Transport{
             this->rentPrice = rentPrice;
             this->kind = "Мотоцикл";
         }
+
+        friend ostream &operator<<(ostream &output, const Bike &b){
+
+            output << "ID: "<< b.id << "\n";
+            output << "Дата создания: "<< b.createYear << "\n";
+            output << "Модель: "<< b.mark << "\n";
+            output << "Цвет: "<< b.color << "\n";
+            output << "номер: "<< b.number << "\n";
+            output << "Пробег: "<< b.mileage << "\n";
+            output << "Тип транспорта: "<< b.kind << "\n";
+            output << "Цена аренды: "<< b.rentPrice << "\n\n";
+            return output;
+        }     
+
     void print(){
         cout << this->id << "\n";
         cout << this->createYear << "\n";
