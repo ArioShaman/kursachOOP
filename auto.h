@@ -24,7 +24,8 @@ class Auto:public virtual Transport{
             output << "номер: "<< a.number << "\n";
             output << "Пробег: "<< a.mileage << "\n";
             output << "Тип транспорта: "<< a.kind << "\n";
-            output << "Цена аренды: "<< a.rentPrice << "\n\n";
+            output << "Цена аренды: "<< a.rentPrice << "\n";
+            output << "Арендован ли транспорт?: "<< a.isRent << "\n\n";
             return output;
         }        
 

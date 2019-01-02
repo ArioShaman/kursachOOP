@@ -11,6 +11,7 @@ class Transport{
         string color;//цвет транспортного средства
         string number;//номер транспортного средства
         int mileage;//пробег в километрах
+        bool isRent = false;
 
     Transport(){
         cout << "Конструктор Transport без параметров";
@@ -23,6 +24,18 @@ class Transport{
         this->number = number;
         this->mileage = mileage;
         // print();
+    }
+
+    void rent(){
+        if(this->isRent){
+            cout << "Транспортное средство уже арендовано \n";
+        }else{    
+            this->isRent = true;
+        }
+    }
+
+    bool isRented(){
+        return this->isRent;
     }
     void print(){
         cout << this->id << "\n";

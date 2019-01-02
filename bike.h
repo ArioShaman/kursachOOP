@@ -24,7 +24,8 @@ class Bike:public virtual Transport{
             output << "номер: "<< b.number << "\n";
             output << "Пробег: "<< b.mileage << "\n";
             output << "Тип транспорта: "<< b.kind << "\n";
-            output << "Цена аренды: "<< b.rentPrice << "\n\n";
+            output << "Цена аренды: "<< b.rentPrice << "\n";
+            output << "Арендован ли транспорт?: "<< b.isRent << "\n\n";
             return output;
         }     
 

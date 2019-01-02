@@ -93,7 +93,7 @@ void readDataFromFile(stack <Auto> &autoStack, stack <Bike> &bikeStack){
     } 
 }
 
-void rentAuto(stack <Auto> &autoStack){
+void rentAuto(int orderId, stack <Auto> &autoStack, stack <OrderAuto> &autoOrders){
     if(autoStack.empty()){
         cout << "Стек пуст";
     }
@@ -102,9 +102,16 @@ void rentAuto(stack <Auto> &autoStack){
     while(!autoStack.empty()){
         int isChanged = 1+rand()%(10-1);
         if(isChanged <= 5){
-            cout << autoStack.top();
+            Auto a(autoStack.top());
+            if(!a.isRented()){
+                a.rent();
+                int durationRent = 1+rand()%(8-1);
+                OrderAuto oa(orderId, a.id, 1, durationRent);
+                autoOrders.push(oa);
+                cout << a;
+                break;
+            }
             //здесь производить заказ и проверку на то, арендован ли транспорт
-            break;
         }
         bufferAutoStack.push(autoStack.top());
         autoStack.pop();
@@ -116,7 +123,7 @@ void rentAuto(stack <Auto> &autoStack){
     }
 }
 
-void rentBike(stack <Bike> &bikeStack){
+void rentBike(int orderId, stack <Bike> &bikeStack, stack <OrderBike> &bikeOrders){
     if(bikeStack.empty()){
         cout << "Стек пуст";
     }
@@ -125,8 +132,15 @@ void rentBike(stack <Bike> &bikeStack){
     while(!bikeStack.empty()){
         int isChanged = 1+rand()%(10-1);
         if(isChanged <= 5){
-            cout << bikeStack.top();
-            //здесь производить заказ и проверку на то, арендован ли транспорт
+            Bike b(bikeStack.top());
+            if(!b.isRented()){
+                b.rent();
+                int durationRent = 1+rand()%(8-1);
+                OrderBike ob(orderId, b.id, durationRent);
+                bikeOrders.push(ob);
+                cout << b;
+                break;
+            }
             break;
         }
         bufferBikeStack.push(bikeStack.top());
@@ -149,12 +163,24 @@ int main(){
     // OrderBike ob(1,2,6);
     // cout << ob;
 
-    stack <Auto> autoStack;
-    stack <Bike> bikeStack;
+    stack <OrderAuto> autoOrders;// стек для учета текущих арендованных автомобилей
+    stack <OrderBike> bikeOrders;// стек для учета текущих арендованных мотоциклов
+
+    stack <OrderAuto> finishedAutoOrders;// стек для учета завершенных сделок по аренде автомобилей
+    stack <OrderBike> finishedBikeOrders;// стек для учета завершенных сделок по аренде мотоциклов
+
+    stack <Auto> autoStack;//стек для хранения данных об автомобилях
+    stack <Bike> bikeStack;//стек для хранения данных о мотоциклах
     readDataFromFile(autoStack, bikeStack);
     
+    
+    int orderId = 1;
 
-    int orderId = 0;
+    // rentAuto(orderId, autoStack, autoOrders);
+    // cout << autoOrders.top();
+
+    rentBike(orderId, bikeStack, bikeOrders);
+    cout << bikeOrders.top();
 
     // for(int curDay = 1; curDay <= 3; curDay++){
     //     cout << "Текущий день:   "<< curDay << "\n";
