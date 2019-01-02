@@ -7,8 +7,9 @@ class Auto:public virtual Transport{
     public:
         int rentPrice;//цена аренды за сутки в у.е.
         string kind;//тип транспортного средства;
-        Auto(){
-            cout << "Конструктор Auto без парметров";
+        Auto():Transport(){
+            this->rentPrice = 0;
+            this->kind = "Автомобиль";
         }
         Auto(int id, int createYear, string mark, string color, string number, int mileage, int rentPrice):Transport(id, createYear, mark, color, number, mileage){
             this->rentPrice = rentPrice;
@@ -27,19 +28,6 @@ class Auto:public virtual Transport{
             output << "Цена аренды: "<< a.rentPrice << "\n";
             output << "Арендован ли транспорт?: "<< a.isRent << "\n\n";
             return output;
-        }        
-
-    void print(){
-        cout << this->id << "\n";
-        cout << this->createYear << "\n";
-        cout << this->mark << "\n";
-        cout << this->color << "\n";
-        cout << this->number << "\n";
-        cout << this->mileage << "\n";
-
-        cout << this->kind << "\n";
-        cout << this->rentPrice << "\n";
-        cout << "\n";    
-    }        
+        }           
 
 };

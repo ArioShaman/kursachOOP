@@ -14,7 +14,12 @@ class Transport{
         bool isRent = false;
 
     Transport(){
-        cout << "Конструктор Transport без параметров";
+        this->id = 0;
+        this->createYear = 0;
+        this->mark = "empty";
+        this->color = "empty";
+        this->number = "empty";
+        this->mileage = 0;        
     }
     Transport(int id, int createYear, string mark, string color, string number, int mileage){
         this->id = id;
@@ -33,6 +38,14 @@ class Transport{
             this->isRent = true;
         }
     }
+
+    bool isExist(){
+        if(this->id == 0){
+            return false;
+        }else{
+            return true;
+        }
+    }  
 
     bool isRented(){
         return this->isRent;

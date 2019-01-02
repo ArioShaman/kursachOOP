@@ -93,34 +93,58 @@ void readDataFromFile(stack <Auto> &autoStack, stack <Bike> &bikeStack){
     } 
 }
 
-void rentAuto(int orderId, stack <Auto> &autoStack, stack <OrderAuto> &autoOrders){
+void rentAuto(int orderId, int curDay, stack <Auto> &autoStack, stack <OrderAuto> &autoOrders){
     if(autoStack.empty()){
         cout << "Стек пуст";
     }
 
-    stack <Auto> bufferAutoStack;
+    stack <Auto> notRentedAutoStack;
+    stack <Auto> rentedAutoStack;
+
+    bool isRent = false;
+
     while(!autoStack.empty()){
-        int isChanged = 1+rand()%(10-1);
-        if(isChanged <= 5){
-            Auto a(autoStack.top());
-            if(!a.isRented()){
-                a.rent();
+
+        //здесь производить заказ и проверку на то, арендован ли транспорт
+        if(!autoStack.top().isRented()){//проверка на арендован ли автомобиль
+        
+            int isChanged = 1+rand()%(10-1);
+            if(isChanged <= 5){
+                autoStack.top().rent();
+                isRent = true;
                 int durationRent = 1+rand()%(8-1);
-                OrderAuto oa(orderId, a.id, 1, durationRent);
+                OrderAuto oa(orderId, autoStack.top().id, curDay, durationRent);
                 autoOrders.push(oa);
-                cout << a;
+                cout << autoStack.top() << "\n";
                 break;
             }
-            //здесь производить заказ и проверку на то, арендован ли транспорт
+
+            notRentedAutoStack.push(autoStack.top());
+            autoStack.pop();
+        }else{
+            rentedAutoStack.push(autoStack.top());
+            autoStack.pop();
         }
-        bufferAutoStack.push(autoStack.top());
-        autoStack.pop();
+
+
     }
 
-    while(!bufferAutoStack.empty()){
-        autoStack.push(bufferAutoStack.top());
-        bufferAutoStack.pop();
+    //проверка на наличие средства для проката
+    if(!isRent and autoStack.empty() and notRentedAutoStack.empty()){
+        cout << "Автомобили на прокат закончились, поэтому клиент ушел до следующего раза\n";
     }
+
+
+    while(!rentedAutoStack.empty()){
+        autoStack.push(rentedAutoStack.top());
+        rentedAutoStack.pop();
+    }
+
+    while(!notRentedAutoStack.empty()){
+        autoStack.push(notRentedAutoStack.top());
+        notRentedAutoStack.pop();
+    }
+
 }
 
 void rentBike(int orderId, stack <Bike> &bikeStack, stack <OrderBike> &bikeOrders){
@@ -128,28 +152,51 @@ void rentBike(int orderId, stack <Bike> &bikeStack, stack <OrderBike> &bikeOrder
         cout << "Стек пуст";
     }
 
-    stack <Bike> bufferBikeStack;
+    stack <Bike> notRentedBikeStack;
+    stack <Bike> rentedBikeStack;
+
+    bool isRent = false;
+
     while(!bikeStack.empty()){
-        int isChanged = 1+rand()%(10-1);
-        if(isChanged <= 5){
-            Bike b(bikeStack.top());
-            if(!b.isRented()){
-                b.rent();
+
+        //здесь производить заказ и проверку на то, арендован ли транспорт
+        if(!bikeStack.top().isRented()){//проверка на арендован ли автомобиль
+        
+            int isChanged = 1+rand()%(10-1);
+            if(isChanged <= 5){
+                bikeStack.top().rent();
+                isRent = true;
                 int durationRent = 1+rand()%(8-1);
-                OrderBike ob(orderId, b.id, durationRent);
+                OrderBike ob(orderId, bikeStack.top().id, durationRent);
                 bikeOrders.push(ob);
-                cout << b;
+                cout << bikeStack.top() << "\n";
                 break;
             }
-            break;
+
+            notRentedBikeStack.push(bikeStack.top());
+            bikeStack.pop();
+        }else{
+            rentedBikeStack.push(bikeStack.top());
+            bikeStack.pop();
         }
-        bufferBikeStack.push(bikeStack.top());
-        bikeStack.pop();
+
+
     }
 
-    while(!bufferBikeStack.empty()){
-        bikeStack.push(bufferBikeStack.top());
-        bufferBikeStack.pop();
+    //проверка на наличие средства для проката
+    if(!isRent and bikeStack.empty() and notRentedBikeStack.empty()){
+        cout << "Мотоциклы на прокат закончились, поэтому клиент ушел до следующего раза\n";
+    }
+
+
+    while(!rentedBikeStack.empty()){
+        bikeStack.push(rentedBikeStack.top());
+        rentedBikeStack.pop();
+    }
+
+    while(!notRentedBikeStack.empty()){
+        bikeStack.push(notRentedBikeStack.top());
+        notRentedBikeStack.pop();
     }
 }
 
@@ -157,11 +204,6 @@ void rentBike(int orderId, stack <Bike> &bikeStack, stack <OrderBike> &bikeOrder
 
 int main(){
     srand(time(NULL));
-    // OrderAuto oa(1,1, 3, 10);
-    // cout << oa;
-
-    // OrderBike ob(1,2,6);
-    // cout << ob;
 
     stack <OrderAuto> autoOrders;// стек для учета текущих арендованных автомобилей
     stack <OrderBike> bikeOrders;// стек для учета текущих арендованных мотоциклов
@@ -174,33 +216,40 @@ int main(){
     readDataFromFile(autoStack, bikeStack);
     
     
-    int orderId = 1;
+    int orderId = 0;
 
-    // rentAuto(orderId, autoStack, autoOrders);
-    // cout << autoOrders.top();
 
-    rentBike(orderId, bikeStack, bikeOrders);
-    cout << bikeOrders.top();
+    for(int curDay = 1; curDay <= 20; curDay++){
+        cout << "Текущий день:   "<< curDay << "\n";
 
-    // for(int curDay = 1; curDay <= 3; curDay++){
-    //     cout << "Текущий день:   "<< curDay << "\n";
+        int countCustomers;
+        countCustomers=1+rand()%(5-1);
+        // cout<< countCustomers << "\n";
+        for(int curCustomer = 1; curCustomer <= countCustomers; curCustomer++){
+            orderId++;
 
-    //     int countCustomers;
-    //     countCustomers=1+rand()%(5-1);
-    //     // cout<< countCustomers << "\n";
-    //     for(int curCustomer = 1; curCustomer <= countCustomers; curCustomer++){
-    //         cout << "Customer:  " << curCustomer << "\n";
-    //         int boolKindTransport = 0+rand()%(3-1);
+            cout << "Customer:  " << orderId << "\n";
+            int boolKindTransport = 0+rand()%(3-1);
             
-    //         string curTransport;
-    //         if(boolKindTransport == 1){
-    //             curTransport = "auto";
-    //         }else{
-    //             curTransport = "bike";
-    //         }
 
-    //     }
-    // }
+            // rentAuto(orderId, curDay, autoStack, autoOrders);
+
+            string curTransport;
+            if(boolKindTransport == 1){
+                curTransport = "auto";
+                rentAuto(orderId, curDay, autoStack, autoOrders);
+
+            }else{
+                curTransport = "bike";
+                rentBike(orderId, bikeStack, bikeOrders);
+            }
+
+        }
+        //симуляция процесса возврата средства
+        // while(!autoOrders.empty()){
+
+        // }
+    }
 
 
     return 0;
