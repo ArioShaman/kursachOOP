@@ -16,6 +16,17 @@ class Bike:public virtual Transport{
             this->kind = "Мотоцикл";
         }
 
+
+        void setBike(Bike &b){
+            this->id = b.id;
+            this->createYear = b.createYear; 
+            this->mark = b.mark;
+            this->color = b.color;
+            this->number = b.number;
+            this->mileage = b.mileage;
+            this->rentPrice = b.rentPrice;
+            this->isRent = b.isRent;   
+        }
         friend ostream &operator<<(ostream &output, const Bike &b){
 
             output << "ID: "<< b.id << "\n";

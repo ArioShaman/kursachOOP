@@ -12,7 +12,7 @@ class OrderBike:public virtual Order{
 
     friend ostream &operator<<(ostream &output, const OrderBike &o){
         output << "ID: "<< o.id << "\n";
-        output << "Auto ID: "<< o.id_transport << "\n";
+        output << "bike ID: "<< o.id_transport << "\n";
         output << "Длительность аренды: "<< o.durationRent << "\n";
         output << "Длительность штрафа: "<< o.durationFine << "\n";
         output << "Заказ закрыт?: "<< o.isClose << "\n";

@@ -39,6 +39,14 @@ class Transport{
         }
     }
 
+    void unrent(){
+        if(!this->isRent){
+            cout << "Транспортное средство не арендовано \n";
+        }else{    
+            this->isRent = false;
+        }
+    }    
+
     bool isExist(){
         if(this->id == 0){
             return false;

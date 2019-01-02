@@ -18,6 +18,15 @@ class Order{
         // print();
     }
 
+    void close(){
+        this->isClose = true;
+    }
+
+    //добавление штрафного времени
+    void addFine(int count){
+        this->durationFine = this->durationFine + count;
+    }
+
     void print(){
         cout << this->id << "\n";
         cout << this->id_transport << "\n";
