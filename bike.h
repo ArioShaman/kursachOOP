@@ -26,6 +26,7 @@ class Bike:public virtual Transport{
             this->mileage = b.mileage;
             this->rentPrice = b.rentPrice;
             this->isRent = b.isRent;   
+            this->kind = "Мотоцикл";
         }
         friend ostream &operator<<(ostream &output, const Bike &b){
 

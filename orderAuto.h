@@ -21,6 +21,17 @@ class OrderAuto:public virtual Order{
         cout << "\n";
     }
 
+    bool isExpireRent(int curDay){
+        int runnedTime = curDay - this->startRent;
+        // cout << "runnedTime:   " << runnedTime << "\n\n";
+        if(runnedTime >= this->durationRent){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     void print(){
         cout << this->id << "\n";
         cout << this->id_transport << "\n";

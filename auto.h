@@ -16,6 +16,18 @@ class Auto:public virtual Transport{
             this->kind = "Автомобиль";
         }
 
+        void setAuto(Auto &a){
+            this->id = a.id;
+            this->createYear = a.createYear; 
+            this->mark = a.mark;
+            this->color = a.color;
+            this->number = a.number;
+            this->mileage = a.mileage;
+            this->rentPrice = a.rentPrice;
+            this->isRent = a.isRent;   
+            this->kind = "Автомобиль";
+        }
+
         friend ostream &operator<<(ostream &output, const Auto &a){
 
             output << "ID: "<< a.id << "\n";

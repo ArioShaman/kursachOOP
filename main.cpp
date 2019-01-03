@@ -93,6 +93,29 @@ void readDataFromFile(stack <Auto> &autoStack, stack <Bike> &bikeStack){
     } 
 }
 
+
+Auto getAutoById(stack <Auto> &autoStack, int id){
+    stack <Auto> bufferedAutoStack;
+    Auto a;
+    while(!autoStack.empty()){
+        if(autoStack.top().id == id){
+            a.setAuto(autoStack.top());
+        }
+        else{
+            bufferedAutoStack.push(autoStack.top());
+            
+        }
+        autoStack.pop();
+
+    }
+    while(!bufferedAutoStack.empty()){
+        autoStack.push(bufferedAutoStack.top());
+        bufferedAutoStack.pop();
+    }
+
+    return a;
+}
+
 void rentAuto(int orderId, int curDay, stack <Auto> &autoStack, stack <OrderAuto> &autoOrders){
     if(autoStack.empty()){
         cout << "Стек пуст";
@@ -110,23 +133,25 @@ void rentAuto(int orderId, int curDay, stack <Auto> &autoStack, stack <OrderAuto
         
             int isChanged = 1+rand()%(10-1);
             if(isChanged <= 5){
-                autoStack.top().rent();
-                isRent = true;
-                int durationRent = 1+rand()%(8-1);
-                OrderAuto oa(orderId, autoStack.top().id, curDay, durationRent);
-                autoOrders.push(oa);
-                // cout << autoStack.top() << "\n";
-                break;
-            }
+                Auto a(getAutoById(autoStack, autoStack.top().id));
+                a.rent();
 
-            notRentedAutoStack.push(autoStack.top());
-            autoStack.pop();
+                isRent = true;
+                int durationRent = 1+rand()%(5-1);
+                OrderAuto oa(orderId, a.id, curDay, durationRent);
+                autoOrders.push(oa);
+
+                autoStack.push(a);
+                // cout << a << "\n";
+                break;
+            }else{
+                notRentedAutoStack.push(autoStack.top());
+                autoStack.pop();
+            }
         }else{
             rentedAutoStack.push(autoStack.top());
             autoStack.pop();
         }
-
-
     }
 
     //проверка на наличие средства для проката
@@ -195,7 +220,7 @@ void rentBike(int orderId, stack <Bike> &bikeStack, stack <OrderBike> &bikeOrder
 
                 bikeStack.push(b);
 
-                cout << "Bike: \n\n" << b << "\n";
+                // cout << "Bike: \n\n" << b << "\n";
                 // cout << "Bike: \n\n" << getBikeById(bikeStack, bikeStack.top().id) << "\n";
                 break;
             }else{
@@ -237,7 +262,6 @@ int main(){
     stack <OrderBike> bikeOrders;// стек для учета текущих арендованных мотоциклов
 
     stack <OrderAuto> bufferAutoOrders;// буферный стек для учета текущих арендованных автомобилей
-    stack <OrderBike> bufferBikeOrders;// буферный стек для учета текущих арендованных мотоциклов
 
 
     stack <OrderAuto> finishedAutoOrders;// стек для учета завершенных сделок по аренде автомобилей
@@ -258,8 +282,8 @@ int main(){
         cout << "Текущий день:   "<< curDay << "\n";
 
         int countCustomers;
-        countCustomers=1+rand()%(5-1);
-        // countCustomers = 1;
+        // countCustomers=1+rand()%(5-1);
+        countCustomers = 1;
         for(int curCustomer = 1; curCustomer <= countCustomers; curCustomer++){
             orderId++;
 
@@ -271,24 +295,50 @@ int main(){
 
             string curTransport;
 
-            rentBike(orderId, bikeStack, bikeOrders);
+            rentAuto(orderId, curDay, autoStack, autoOrders);
 
             if(boolKindTransport == 1){
                 curTransport = "auto";
-                // rentAuto(orderId, curDay, autoStack, autoOrders);
+                rentAuto(orderId, curDay, autoStack, autoOrders);
 
             }else{
                 curTransport = "bike";
-                // rentBike(orderId, bikeStack, bikeOrders);
+                rentBike(orderId, bikeStack, bikeOrders);
             }
 
         }
         //симуляция процесса возврата автомобиля
         
-        // while(!autoOrders.empty()){
-        //     cout << autoOrders.top() << "\n";
-        //     autoOrders.pop();
-        // }
+        while(!autoOrders.empty()){
+            OrderAuto oa(autoOrders.top());
+            
+            Auto a(getAutoById(autoStack, oa.id_transport));
+            //проверка на то, истекла ли дата аренды  
+            if(oa.isExpireRent(curDay)){
+                // если истекла, то проверить вернул ли арендатель автомобиль
+                bool inTime = 0+rand()%(3-1);
+                if(!inTime){
+                    // если не вернул то добавить штрафной час и идти дальше
+                    oa.addFine(1);
+                    bufferAutoOrders.push(oa);
+                }else{
+                    //если вернул то разарендовать автомобиль и завершить заказ
+                    a.unrent();
+                    oa.close();
+                    finishedAutoOrders.push(oa);
+                }      
+            
+            }else{
+                //если не истекла то пропустить
+                bufferAutoOrders.push(oa);
+            }
+            autoOrders.pop();
+
+        }
+        while(!bufferAutoOrders.empty()){
+            autoOrders.push(bufferAutoOrders.top());
+            bufferAutoOrders.pop();
+        }
         
 
         //симуляция процесса возврата мотоцикла
@@ -320,13 +370,15 @@ int main(){
 
     }
 
-    // cout << getBikeById(bikeStack, 3) << "\n";
+   //  while(!finishedAutoOrders.empty()){
+   //      cout << finishedAutoOrders.top() << "\n";
+   //      finishedAutoOrders.pop();
+   //  }
 
-
-    // while(!finishedBikeOrders.empty()){
-    //     cout << finishedBikeOrders.top() << "\n";
-    //     finishedBikeOrders.pop();
-    // }
+   // while(!autoOrders.empty()){
+   //      cout << autoOrders.top() << "\n";
+   //      autoOrders.pop();
+   //  }    
 
     return 0;
 }
