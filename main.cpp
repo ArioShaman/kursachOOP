@@ -118,7 +118,7 @@ Auto getAutoById(stack <Auto> &autoStack, int id){
 
 void rentAuto(int orderId, int curDay, stack <Auto> &autoStack, stack <OrderAuto> &autoOrders){
     if(autoStack.empty()){
-        cout << "Стек пуст";
+        cout << "Стек пуст \n";
     }
 
     stack <Auto> notRentedAutoStack;
@@ -194,9 +194,9 @@ Bike getBikeById(stack <Bike> &bikeStack, int id){
     return b;
 }
 
-void rentBike(int orderId, stack <Bike> &bikeStack, stack <OrderBike> &bikeOrders){
+void rentBike(int orderId, int curDay, stack <Bike> &bikeStack, stack <OrderBike> &bikeOrders){
     if(bikeStack.empty()){
-        cout << "Стек пуст";
+        cout << "Стек пуст \n";
     }
 
     stack <Bike> notRentedBikeStack;
@@ -215,7 +215,7 @@ void rentBike(int orderId, stack <Bike> &bikeStack, stack <OrderBike> &bikeOrder
                 b.rent();
                 isRent = true;
                 int durationRent = 1+rand()%(8-1);
-                OrderBike ob(orderId, b.id, durationRent);
+                OrderBike ob(orderId, curDay, b.id, durationRent);
                 bikeOrders.push(ob);
 
                 bikeStack.push(b);
@@ -253,37 +253,97 @@ void rentBike(int orderId, stack <Bike> &bikeStack, stack <OrderBike> &bikeOrder
     }
 }
 
+//Определить сколько раз были сданы в прокат транспортные средства в указанный период времени по каждому виду (автомобиль, мотоцикл).
+void checkRentedTransport(int startDay, int finishDay, stack <OrderAuto> &autoOrders, stack <OrderAuto> &finishedAutoOrders, stack <OrderBike> &finishedBikeOrders){
+    int bikeCount = 0;
+    int autoCount = 0;
+
+    stack <OrderAuto> bufferAutoOrders;
+    stack <OrderAuto> buferFinishedAutoOrders;
+    stack <OrderBike> bufferFinishedBikeOrders;
+
+    //незакрытые сделки по аренде автомобилей
+    while(!autoOrders.empty()){
+        if((autoOrders.top().startRent >= startDay) and (autoOrders.top().startRent <= finishDay) ){
+            autoCount++;
+        }
+        bufferAutoOrders.push(autoOrders.top());
+        autoOrders.pop();
+    }
+    while(!bufferAutoOrders.empty()){
+        autoOrders.push(bufferAutoOrders.top());
+        bufferAutoOrders.pop();
+    }
+
+    //закрытые сделки по аренде автомобилей
+    while(!finishedAutoOrders.empty()){
+        if((finishedAutoOrders.top().startRent >= startDay) and (finishedAutoOrders.top().startRent <= finishDay) ){
+            autoCount++;
+        }        
+        buferFinishedAutoOrders.push(finishedAutoOrders.top());
+        finishedAutoOrders.pop();
+    }
+    while(!buferFinishedAutoOrders.empty()){
+        finishedAutoOrders.push(buferFinishedAutoOrders.top());
+        buferFinishedAutoOrders.pop();
+    }
+
+    //сделки по аренде мотоциклов
+    while(!finishedBikeOrders.empty()){
+        if((finishedBikeOrders.top().startRent >= startDay) and (finishedBikeOrders.top().startRent <= finishDay) ){
+            bikeCount++;
+        }    
+        bufferFinishedBikeOrders.push(finishedBikeOrders.top());
+        finishedBikeOrders.pop();
+    }
+    while(!bufferFinishedBikeOrders.empty()){
+        finishedBikeOrders.push(bufferFinishedBikeOrders.top());
+        bufferFinishedBikeOrders.pop();
+    }
+
+    cout << "Кол-во операций по аренде автомобилей: с " << startDay << " по " << finishDay << " число: " << autoCount << "\n";
+    cout << "Кол-во операций по аренде мотоциклов:  с " << startDay << " по " << finishDay << " число: " << bikeCount << "\n";
+}
 
 
 int main(){
     srand(time(NULL));
 
-    stack <OrderAuto> autoOrders;// стек для учета текущих арендованных автомобилей
-    stack <OrderBike> bikeOrders;// стек для учета текущих арендованных мотоциклов
+    stack <OrderAuto> autoOrders;
+    // стек для учета текущих арендованных автомобилей
+    stack <OrderBike> bikeOrders;
+    // стек для учета текущих арендованных мотоциклов
 
-    stack <OrderAuto> bufferAutoOrders;// буферный стек для учета текущих арендованных автомобилей
+    stack <OrderAuto> bufferAutoOrders;
+    // буферный стек для учета текущих арендованных автомобилей
 
 
-    stack <OrderAuto> finishedAutoOrders;// стек для учета завершенных сделок по аренде автомобилей
-    stack <OrderBike> finishedBikeOrders;// стек для учета завершенных сделок по аренде мотоциклов
+    stack <OrderAuto> finishedAutoOrders;
+    // стек для учета завершенных сделок по аренде автомобилей
+    stack <OrderBike> finishedBikeOrders;
+    // стек для учета завершенных сделок по аренде мотоциклов
 
-    stack <Auto> autoStack;//стек для хранения данных об автомобилях
-    stack <Bike> bikeStack;//стек для хранения данных о мотоциклах
+    stack <Auto> autoStack;
+    //стек для хранения данных об автомобилях
+    stack <Bike> bikeStack;
+    //стек для хранения данных о мотоциклах
 
-    stack <Auto> bufferAutoStack;//буферный стек для хранения данных об автомобилях
-    stack <Bike> bufferBikeStack;//буферный стек для хранения данных о мотоциклах    
+    stack <Auto> bufferAutoStack;
+    //буферный стек для хранения данных об автомобилях
+    stack <Bike> bufferBikeStack;
+    //буферный стек для хранения данных о мотоциклах    
     readDataFromFile(autoStack, bikeStack);
     
     
     int orderId = 0;
 
 
-    for(int curDay = 1; curDay <= 5; curDay++){
+    for(int curDay = 1; curDay <= 25; curDay++){
         cout << "Текущий день:   "<< curDay << "\n";
 
         int countCustomers;
-        // countCustomers=1+rand()%(5-1);
-        countCustomers = 1;
+        countCustomers=1+rand()%(5-1);
+        // countCustomers = 1;
         for(int curCustomer = 1; curCustomer <= countCustomers; curCustomer++){
             orderId++;
 
@@ -303,7 +363,7 @@ int main(){
 
             }else{
                 curTransport = "bike";
-                rentBike(orderId, bikeStack, bikeOrders);
+                rentBike(orderId, curDay, bikeStack, bikeOrders);
             }
 
         }
@@ -370,15 +430,7 @@ int main(){
 
     }
 
-   //  while(!finishedAutoOrders.empty()){
-   //      cout << finishedAutoOrders.top() << "\n";
-   //      finishedAutoOrders.pop();
-   //  }
-
-   // while(!autoOrders.empty()){
-   //      cout << autoOrders.top() << "\n";
-   //      autoOrders.pop();
-   //  }    
+    checkRentedTransport(5, 15, autoOrders, finishedAutoOrders, finishedBikeOrders);   
 
     return 0;
 }
