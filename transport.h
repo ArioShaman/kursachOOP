@@ -47,6 +47,9 @@ class Transport{
         }
     }    
 
+    void addMileage(int mileage){
+        this->mileage = this->mileage + mileage;
+    }
     bool isExist(){
         if(this->id == 0){
             return false;

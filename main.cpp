@@ -121,8 +121,7 @@ void rentAuto(int orderId, int curDay, stack <Auto> &autoStack, stack <OrderAuto
         cout << "Стек пуст \n";
     }
 
-    stack <Auto> notRentedAutoStack;
-    stack <Auto> rentedAutoStack;
+    stack <Auto> bufferAutoStack;
 
     bool isRent = false;
 
@@ -143,31 +142,35 @@ void rentAuto(int orderId, int curDay, stack <Auto> &autoStack, stack <OrderAuto
 
                 autoStack.push(a);
                 // cout << a << "\n";
+
+                std::ofstream out("./otchet.txt", std::ios::app);
+                if (out.is_open()){
+                    out << "Арендован автомобиль:   " << a.mark << " , номер: " << a.number << "\n\n";
+                }                
+                out.close();
+
                 break;
             }else{
-                notRentedAutoStack.push(autoStack.top());
+                bufferAutoStack.push(autoStack.top());
                 autoStack.pop();
             }
         }else{
-            rentedAutoStack.push(autoStack.top());
+            bufferAutoStack.push(autoStack.top());
             autoStack.pop();
         }
     }
 
     //проверка на наличие средства для проката
-    if(!isRent and autoStack.empty() and notRentedAutoStack.empty()){
-        cout << "Автомобили на прокат закончились, поэтому клиент ушел до следующего раза\n";
+    if(!isRent and autoStack.empty()){
+        std::ofstream out("./otchet.txt", std::ios::app);
+        out << "Автомобили на прокат закончились, поэтому клиент ушел до следующего раза\n";
+        out.close();
     }
 
 
-    while(!rentedAutoStack.empty()){
-        autoStack.push(rentedAutoStack.top());
-        rentedAutoStack.pop();
-    }
-
-    while(!notRentedAutoStack.empty()){
-        autoStack.push(notRentedAutoStack.top());
-        notRentedAutoStack.pop();
+    while(!bufferAutoStack.empty()){
+        autoStack.push(bufferAutoStack.top());
+        bufferAutoStack.pop();
     }
 
 }
@@ -199,15 +202,14 @@ void rentBike(int orderId, int curDay, stack <Bike> &bikeStack, stack <OrderBike
         cout << "Стек пуст \n";
     }
 
-    stack <Bike> notRentedBikeStack;
-    stack <Bike> rentedBikeStack;
+    stack <Bike> bufferBikeStack;
 
     bool isRent = false;
 
     while(!bikeStack.empty()){
 
         //здесь производить заказ и проверку на то, арендован ли транспорт
-        if(!bikeStack.top().isRented()){//проверка на арендован ли автомобиль
+        if(!bikeStack.top().isRented()){//проверка на арендован ли мотоцикл
         
             int isChanged = 1+rand()%(10-1);
             if(isChanged <= 5){
@@ -215,44 +217,84 @@ void rentBike(int orderId, int curDay, stack <Bike> &bikeStack, stack <OrderBike
                 b.rent();
                 isRent = true;
                 int durationRent = 1+rand()%(8-1);
-                OrderBike ob(orderId, curDay, b.id, durationRent);
+                OrderBike ob(orderId, b.id, curDay, durationRent);
+                
                 bikeOrders.push(ob);
 
+                std::ofstream out("./otchet.txt", std::ios::app);
+  
+                out << "Арендован мотоцикл:   " << b.mark << " , номер: " << b.number << "\n\n";
+                                
+                out.close();
                 bikeStack.push(b);
-
-                // cout << "Bike: \n\n" << b << "\n";
-                // cout << "Bike: \n\n" << getBikeById(bikeStack, bikeStack.top().id) << "\n";
                 break;
-            }else{
-                notRentedBikeStack.push(bikeStack.top());
-                bikeStack.pop();
             }
-
+            bufferBikeStack.push(bikeStack.top());
+            bikeStack.pop();
         }else{
-            rentedBikeStack.push(bikeStack.top());
+            bufferBikeStack.push(bikeStack.top());
             bikeStack.pop();
         }
 
 
     }
 
-    //проверка на наличие средства для проката
-    if(!isRent and bikeStack.empty() and notRentedBikeStack.empty()){
-        cout << "Мотоциклы на прокат закончились, поэтому клиент ушел до следующего раза\n";
+    while(!bufferBikeStack.empty()){
+        bikeStack.push(bufferBikeStack.top());
+        bufferBikeStack.pop();
     }
 
-
-    while(!rentedBikeStack.empty()){
-        bikeStack.push(rentedBikeStack.top());
-        rentedBikeStack.pop();
-    }
-
-    while(!notRentedBikeStack.empty()){
-        bikeStack.push(notRentedBikeStack.top());
-        notRentedBikeStack.pop();
-    }
 }
 
+
+int checkProfit(stack <OrderAuto> &finishedAutoOrders, stack <OrderBike> &finishedBikeOrders, stack <Auto> &autoStack, stack <Bike> &bikeStack){
+    stack <OrderAuto> buferFinishedAutoOrders;
+    stack <OrderBike> bufferFinishedBikeOrders;
+
+    int autoProfit = 0;
+    int bikeProfit = 0;
+
+
+
+    while(!finishedAutoOrders.empty()){
+        OrderAuto oa(finishedAutoOrders.top()) ;
+
+        Auto a(getAutoById(autoStack, finishedAutoOrders.top().id_transport)); 
+
+        int curProfit = a.rentPrice * oa.durationRent + a.rentPrice*2*oa.durationFine;
+
+        autoProfit += curProfit;
+        
+        autoStack.push(a);
+        buferFinishedAutoOrders.push(finishedAutoOrders.top());
+        finishedAutoOrders.pop();
+    }
+    while(!buferFinishedAutoOrders.empty()){
+        finishedAutoOrders.push(buferFinishedAutoOrders.top());
+        buferFinishedAutoOrders.pop();
+    }
+
+
+    while(!finishedBikeOrders.empty()){
+        OrderBike ob(finishedBikeOrders.top()) ;
+
+        Bike b(getBikeById(bikeStack, finishedBikeOrders.top().id_transport)); 
+
+        int curProfit = b.rentPrice * ob.durationRent + b.rentPrice*2*ob.durationFine;
+
+        bikeProfit += curProfit;
+        
+        bikeStack.push(b);        
+        bufferFinishedBikeOrders.push(finishedBikeOrders.top());
+        finishedBikeOrders.pop();
+    }
+
+    while(!bufferFinishedBikeOrders.empty()){
+        finishedBikeOrders.push(bufferFinishedBikeOrders.top());
+        bufferFinishedBikeOrders.pop();
+    }    
+    return autoProfit + bikeProfit;
+}
 //Определить сколько раз были сданы в прокат транспортные средства в указанный период времени по каждому виду (автомобиль, мотоцикл).
 void checkRentedTransport(int startDay, int finishDay, stack <OrderAuto> &autoOrders, stack <OrderAuto> &finishedAutoOrders, stack <OrderBike> &finishedBikeOrders){
     int bikeCount = 0;
@@ -301,10 +343,67 @@ void checkRentedTransport(int startDay, int finishDay, stack <OrderAuto> &autoOr
         bufferFinishedBikeOrders.pop();
     }
 
-    cout << "Кол-во операций по аренде автомобилей: с " << startDay << " по " << finishDay << " число: " << autoCount << "\n";
-    cout << "Кол-во операций по аренде мотоциклов:  с " << startDay << " по " << finishDay << " число: " << bikeCount << "\n";
+    std::ofstream out("./otchet.txt", std::ios::app);
+    out << "Кол-во операций по аренде автомобилей: с " << startDay << " по " << finishDay << " число: " << autoCount << "\n";
+    out << "Кол-во операций по аренде мотоциклов:  с " << startDay << " по " << finishDay << " число: " << bikeCount << "\n";
+    out.close();
 }
 
+void checkMaxMileage(stack <Auto> &autoStack, stack <Bike> &bikeStack){
+    stack <Auto> bufferAutoStack;
+    stack <Bike> bufferBikeStack;
+
+    int maxMileage = 0;
+    string maxType = "auto";
+    int maxIdTransport = 1; 
+
+    while(!autoStack.empty()){
+        if(autoStack.top().mileage > maxMileage){
+            maxMileage = autoStack.top().mileage;
+            maxIdTransport = autoStack.top().id;    
+        }
+        bufferAutoStack.push(autoStack.top());
+        autoStack.pop();
+    }
+    while(!bufferAutoStack.empty()){
+        autoStack.push(bufferAutoStack.top());
+        bufferAutoStack.pop();
+    }
+
+    while(!bikeStack.empty()){
+
+        if(bikeStack.top().mileage > maxMileage){
+            maxType = "bike";
+            maxMileage = bikeStack.top().mileage;
+            maxIdTransport = bikeStack.top().id; 
+        }
+        bufferBikeStack.push(bikeStack.top());
+        bikeStack.pop();
+    }
+    while(!bufferBikeStack.empty()){
+        bikeStack.push(bufferBikeStack.top());
+        bufferBikeStack.pop();
+    }
+
+
+
+    std::ofstream out("./otchet.txt", std::ios::app);
+    
+    out << "Транспорт с максимальным пробегом: \n";
+        
+    if(maxType == "auto"){
+        Auto a(getAutoById(autoStack, maxIdTransport));
+        out << a << "\n";
+        autoStack.push(a);
+    }else{
+        Bike b(getBikeById(bikeStack, maxIdTransport));
+        out << b << "\n";
+        bikeStack.push(b);
+    }
+    out << "Пробег:  " << maxMileage << "\n";
+    out.close(); 
+
+}
 
 int main(){
     srand(time(NULL));
@@ -338,8 +437,18 @@ int main(){
     int orderId = 0;
 
 
-    for(int curDay = 1; curDay <= 25; curDay++){
-        cout << "Текущий день:   "<< curDay << "\n";
+    
+
+
+
+    for(int curDay = 1; curDay <= 6; curDay++){
+        // cout << "Текущий день:   "<< curDay << "\n";
+     
+        std::ofstream out("./otchet.txt", std::ios::app);
+        if (out.is_open()){
+            out << "                           Текущий день:   " << curDay << "\n\n";
+        }
+        out.close(); 
 
         int countCustomers;
         countCustomers=1+rand()%(5-1);
@@ -347,15 +456,21 @@ int main(){
         for(int curCustomer = 1; curCustomer <= countCustomers; curCustomer++){
             orderId++;
 
-            cout << "Customer:  " << orderId << "\n";
+            // cout << "Customer:  " << orderId << "\n";
+            
+            std::ofstream out("./otchet.txt", std::ios::app);
+            if (out.is_open()){
+                out << "Id Покупателя:   " << orderId << "\n\n";
+            }
+            out.close(); 
+
+
             int boolKindTransport = 0+rand()%(3-1);
             
 
             
 
             string curTransport;
-
-            rentAuto(orderId, curDay, autoStack, autoOrders);
 
             if(boolKindTransport == 1){
                 curTransport = "auto";
@@ -380,10 +495,25 @@ int main(){
                 if(!inTime){
                     // если не вернул то добавить штрафной час и идти дальше
                     oa.addFine(1);
+                    
+                    int mileage = 0+rand()%(300-1);
+
+                    a.addMileage(mileage);
+
                     bufferAutoOrders.push(oa);
                 }else{
                     //если вернул то разарендовать автомобиль и завершить заказ
                     a.unrent();
+
+                    std::ofstream out("./otchet.txt", std::ios::app);
+                    if (out.is_open()){
+                        out << "Возвращен автомобиль :   " << a.mark << " , номер: " << a.number;
+                        out << "Аренда длилась: " << oa.durationRent << "\n";
+                        out << "Штрафное фремя: " << oa.durationFine << "\n";
+                        out << "Пробег: " << a.mileage << "\n\n";
+                    }   
+                    out.close();                    
+                    
                     oa.close();
                     finishedAutoOrders.push(oa);
                 }      
@@ -392,7 +522,9 @@ int main(){
                 //если не истекла то пропустить
                 bufferAutoOrders.push(oa);
             }
+            autoStack.push(a);
             autoOrders.pop();
+
 
         }
         while(!bufferAutoOrders.empty()){
@@ -402,35 +534,53 @@ int main(){
         
 
         //симуляция процесса возврата мотоцикла
-
         while(!bikeOrders.empty()){
+            std::ofstream out("./otchet.txt", std::ios::app);
+
             OrderBike ob(bikeOrders.top());
-            
-            // cout << "Unrarating process: \n\n\n";
             Bike b(getBikeById(bikeStack, ob.id_transport));
+
+
+            int mileage = 0+rand()%(300-1);
+            b.addMileage(mileage);                
+            out << "Возвращен мотоцикл :   " << b.mark << " , номер: " << b.number;
             b.unrent();
-            bikeStack.push(b);
+
+
             
             //рандом определяет сдан вовремя мотоцикл
             bool inTime = 0+rand()%(3-1);
             if(!inTime){
                 //если не сдан, то определяется на рандоме проштрафленное время и помещается в завершенные заказы
                 int fine = 1+rand()%(10-1);
+
                 ob.addFine(fine);
             }
+            out << "Аренда длилась: " << ob.durationRent << "\n";
+            out << "Штрафное время: " << ob.durationFine << " часов \n";
+            out << "Пробег: " << b.mileage << "\n\n";
 
             //сдан/не сдан - поместить заказ в завершенные
             //предполагается, что арендатель возвратил мотоцикл после проштрафленного времени
+            bikeStack.push(b);
             ob.close();
             finishedBikeOrders.push(ob);
 
-
             bikeOrders.pop();
+            out.close(); 
         }
 
     }
 
-    checkRentedTransport(5, 15, autoOrders, finishedAutoOrders, finishedBikeOrders);   
+    checkRentedTransport(1, 30, autoOrders, finishedAutoOrders, finishedBikeOrders);   
+    
+    std::ofstream out("./otchet.txt", std::ios::app);
+    if (out.is_open()){
+        out << "Месячная прибыль автосалона по завершенным сделкам:   " << checkProfit(finishedAutoOrders, finishedBikeOrders, autoStack, bikeStack) << " у.е.\n";
+    }   
+    out.close(); 
 
     return 0;
+
+
 }
