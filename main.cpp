@@ -441,7 +441,7 @@ int main(){
 
 
 
-    for(int curDay = 1; curDay <= 6; curDay++){
+    for(int curDay = 1; curDay <= 30; curDay++){
         // cout << "Текущий день:   "<< curDay << "\n";
      
         std::ofstream out("./otchet.txt", std::ios::app);
@@ -507,10 +507,10 @@ int main(){
 
                     std::ofstream out("./otchet.txt", std::ios::app);
                     if (out.is_open()){
-                        out << "Возвращен автомобиль :   " << a.mark << " , номер: " << a.number;
-                        out << "Аренда длилась: " << oa.durationRent << "\n";
+                        out << "Возвращен автомобиль :   " << a.mark << " , номер: " << a.number << "\n";
+                        out << "Аренда длилась: " << oa.durationRent << " дней \n";
                         out << "Штрафное фремя: " << oa.durationFine << "\n";
-                        out << "Пробег: " << a.mileage << "\n\n";
+                        out << "Пробег: " << a.mileage << " км\n\n";
                     }   
                     out.close();                    
                     
@@ -543,7 +543,7 @@ int main(){
 
             int mileage = 0+rand()%(300-1);
             b.addMileage(mileage);                
-            out << "Возвращен мотоцикл :   " << b.mark << " , номер: " << b.number;
+            out << "Возвращен мотоцикл :   " << b.mark << " , номер: " << b.number << "\n";
             b.unrent();
 
 
@@ -556,9 +556,9 @@ int main(){
 
                 ob.addFine(fine);
             }
-            out << "Аренда длилась: " << ob.durationRent << "\n";
+            out << "Аренда длилась: " << ob.durationRent << " часов \n";
             out << "Штрафное время: " << ob.durationFine << " часов \n";
-            out << "Пробег: " << b.mileage << "\n\n";
+            out << "Пробег: " << b.mileage << " км\n\n";
 
             //сдан/не сдан - поместить заказ в завершенные
             //предполагается, что арендатель возвратил мотоцикл после проштрафленного времени
